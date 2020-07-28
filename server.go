@@ -16,6 +16,7 @@ func main() {
 			"message": "ok",
 		})
 	})
+	server.POST("/signup", controllers.SignUp)
 	server.POST("/auth", controllers.Auth)
 
 	videoController := controllers.VideoController{}
