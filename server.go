@@ -1,11 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"ginDemo/controllers"
 	"ginDemo/middlewares"
+	"ginDemo/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
+
+func init() {
+	utils.Setup()
+}
 
 func main() {
 	server := gin.New()
@@ -30,5 +36,5 @@ func main() {
 		videos.DELETE("/:id/", videoController.Delete)
 
 	}
-	server.Run(":8080")
+	server.Run(fmt.Sprintf(":%d", utils.Settings.Server.Port))
 }

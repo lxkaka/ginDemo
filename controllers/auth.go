@@ -30,6 +30,7 @@ func Auth(c *gin.Context) {
 	}
 	token, err := utils.GenerateToken(author)
 	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"token": token})

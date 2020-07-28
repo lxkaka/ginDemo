@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var jwtSecret []byte
+var jwtSecret = []byte(Settings.Server.JWTSecret)
 
 type Claims struct {
 	UserID   uint64
