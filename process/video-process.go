@@ -1,49 +1,46 @@
 package process
 
 import (
+	"fmt"
 	"ginDemo/connections"
 	"ginDemo/models"
 )
 
-//type VideoProcess interface {
-//	Save(video models.Video)
-//	Update(video models.Video)
-//	Delete(video models.Video)
-//	Find(username string) []models.Video
-//}
+type VideoProcess struct {
+}
 
-func Save(video models.Video) {
+func (p *VideoProcess) Save(video models.Video) {
 	conn := connections.MysqlConn()
 	defer conn.Close()
 	conn.Create(&video)
 }
 
-func Update(video models.Video) {
+func (p *VideoProcess) Update(video models.Video) {
 	conn := connections.MysqlConn()
 	defer conn.Close()
 	conn.Model(&video).Update(&video)
 }
 
-func Delete(video models.Video) {
+func (p *VideoProcess) Delete(video models.Video) {
 	conn := connections.MysqlConn()
 	defer conn.Close()
 	conn.Delete(&video)
 }
 
-func Find(username string) []models.Video {
+func (p *VideoProcess) Find(title string) []models.Video {
 	conn := connections.MysqlConn()
 	defer conn.Close()
 	conn.AutoMigrate(&models.Video{}, &models.Author{})
 	var videos []models.Video
-	conn.Set("gorm:auto_preload", true).Where("username=?", username).Find(&videos)
+	conn.Set("gorm:auto_preload", true).Where("title like ?", fmt.Sprintf("%s%%", title)).Find(&videos)
 	return videos
 }
 
-func FindAuthor(username string) (models.Author, error) {
+func (p *VideoProcess) FindAuthor(username string, password string) (models.Author, error) {
 	conn := connections.MysqlConn()
 	defer conn.Close()
 	var author models.Author
-	err := conn.Where("username=?", username).First(&author).Error
+	err := conn.First(&author, "username=? and password=?", username, password).Error
 	if err != nil {
 		return models.Author{}, err
 	}

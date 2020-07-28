@@ -16,13 +16,17 @@ func main() {
 			"message": "ok",
 		})
 	})
+	server.POST("/auth", controllers.Auth)
+
+	videoController := controllers.VideoController{}
 
 	videos := server.Group("/api/videos")
+	videos.Use(middlewares.JWTAuth())
 	{
-		videos.GET("/", controllers.Find)
-		videos.POST("/", controllers.Save)
-		videos.PUT("/:id/", controllers.Update)
-		videos.DELETE("/:id/", controllers.Delete)
+		videos.GET("/", videoController.Find)
+		videos.POST("/", videoController.Save)
+		videos.PUT("/:id/", videoController.Update)
+		videos.DELETE("/:id/", videoController.Delete)
 
 	}
 	server.Run(":8080")

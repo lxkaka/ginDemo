@@ -8,36 +8,35 @@ import (
 	"strconv"
 )
 
-//type VideoController interface {
-//	Find(u string) []models.Video
-//	Save(c *gin.Context) error
-//	Update(c *gin.Context) error
-//	Delete(c *gin.Context) error
-//}
-
-func Find(c *gin.Context) {
-	username := c.Query("username")
-	c.JSON(200, process.Find(username))
+type VideoController struct {
 }
 
-func Save(c *gin.Context) {
+var vp = process.VideoProcess{}
+
+func (ctl *VideoController) Find(c *gin.Context) {
+	title := c.Query("title")
+	c.JSON(200, vp.Find(title))
+}
+
+func (ctl *VideoController) Save(c *gin.Context) {
 	var video models.Video
-	var author models.Author
 	err := c.ShouldBindJSON(&video)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	author, err = process.FindAuthor(video.Author.Username)
-	if err == nil {
-		video.AuthorID = author.ID
-		video.Author = models.Author{}
+	userid, exists := c.Get("userid")
+	if !exists {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
 	}
-	process.Save(video)
+	video.AuthorID, _ = userid.(uint64)
+	video.Author = models.Author{}
+	vp.Save(video)
 	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
 
-func Update(c *gin.Context) {
+func (ctl *VideoController) Update(c *gin.Context) {
 	var video models.Video
 	err := c.ShouldBindJSON(&video)
 	if err != nil {
@@ -51,11 +50,11 @@ func Update(c *gin.Context) {
 		return
 	}
 	video.ID = id
-	process.Update(video)
+	vp.Update(video)
 	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
 
-func Delete(c *gin.Context) {
+func (ctl *VideoController) Delete(c *gin.Context) {
 	var video models.Video
 
 	id, err := strconv.ParseUint(c.Param("id"), 0, 0)
@@ -65,6 +64,6 @@ func Delete(c *gin.Context) {
 
 	}
 	video.ID = id
-	process.Delete(video)
+	vp.Delete(video)
 	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
