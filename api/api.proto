@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+
+// service 关键字定义提供的服务
+service MyService {
+  // 定义一个探活方法
+  rpc Health (.google.protobuf.Empty) returns (.google.protobuf.Empty){
+  }
+  // 定义一个批量查询 user 的方法
+  rpc User (UserReq) returns (UserReply){
+  }
+
+}
+
+// message 关键字定义交互的数据结构
+message UserReq {
+  repeated int32 userIDs= 1;
+}
+
+message UserReply {
+  string message = 1;
+  // repeated 定义一个数组
+  repeated User data = 2;
+}
+
+message User {
+  string name = 1;
+  int32 age = 2;
+  string email = 3;
+}
