@@ -15,13 +15,16 @@ func init() {
 
 func main() {
 	server := gin.New()
-	server.Use(middlewares.AccessLogger(), gin.Recovery())
+	server.Use(middlewares.AccessLogger(), middlewares.Metric(), gin.Recovery())
 
 	server.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "ok",
 		})
 	})
+
+	server.GET("/metrics", controllers.Monitor)
+
 	server.POST("/signup", controllers.SignUp)
 	server.POST("/auth", controllers.Auth)
 
