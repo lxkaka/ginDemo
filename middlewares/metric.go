@@ -2,11 +2,12 @@ package middlewares
 
 import (
 	"ginDemo/controllers"
-	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/prometheus"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 func shuffle(s []string) string {
@@ -17,10 +18,10 @@ func shuffle(s []string) string {
 //Metric metric middleware
 func Metric() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tBegin := time.Now()
+		start := time.Now()
 		c.Next()
 
-		duration := float64(time.Since(tBegin)) / float64(time.Second)
+		duration := float64(time.Since(start)) / float64(time.Second)
 
 		path := c.Request.URL.Path
 
@@ -37,11 +38,13 @@ func Metric() gin.HandlerFunc {
 			"path":   path,
 		}).Observe(duration)
 
+		// 模拟新建任务
 		controllers.TaskRunning.With(prometheus.Labels{
 			"type":  shuffle([]string{"video", "audio"}),
 			"state": shuffle([]string{"process", "queue"}),
 		}).Inc()
 
+		// 模拟任务完成
 		controllers.TaskRunning.With(prometheus.Labels{
 			"type":  shuffle([]string{"video", "audio"}),
 			"state": shuffle([]string{"process", "queue"}),
