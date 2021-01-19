@@ -6,20 +6,22 @@ import (
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/mxk/go-flowrate/flowrate"
 )
 
 func main() {
 	st := time.Now()
-	resp, err := http.Get("http://172.16.38.171:2281/livechunksboss/live_110000339_2517179-2020-07-30-18:05:00.flv")
+	log.Printf("start:", st)
+	c := &http.Client{
+		Timeout: 1800 * time.Second,
+	}
+	resp, err := c.Get("http://upos-sz-office.bilibili.co/livechunks/live_103701980_2364067-2020-10-07-21:45:28.flv?deadline=1602832673&gen=record2vod&os=upos&uparams=deadline,gen,os&upsig=72c415950918262c57e77e234bff4fd8")
 	if err != nil {
 		log.Fatalf("Get failed: %v", err)
 	}
 	defer resp.Body.Close()
 
 	// Limit to 10 bytes per second
-	wrappedIn := flowrate.NewReader(resp.Body, -1)
+	//wrappedIn := flowrate.NewReader(resp.Body, -1)
 
 	var f *os.File
 	filename := "/Users/lxkaka/Desktop/test_limit.flv"
@@ -31,9 +33,9 @@ func main() {
 
 	defer f.Close()
 
-	// Copy to stdout
-	_, err = io.Copy(f, wrappedIn)
+	_, err = io.Copy(f, resp.Body)
 	if err != nil {
+		println(time.Since(st).Seconds())
 		log.Fatalf("Copy failed: %v", err)
 	}
 	print(time.Since(st).Seconds())
