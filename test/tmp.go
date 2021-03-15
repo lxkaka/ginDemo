@@ -3,7 +3,7 @@ package main
 func main() {
 	var (
 		sign = make(chan int)
-		done = make(chan bool)
+		done = make(chan struct{})
 	)
 	go do(sign, done)
 	go command(sign)
@@ -13,7 +13,7 @@ func main() {
 	println("done")
 }
 
-func do(s <-chan int, d chan<- bool) {
+func do(s <-chan int, d chan<- struct{}) {
 	//select {
 	//case <-s:
 	//	println("get sign and do --->")
@@ -22,7 +22,7 @@ func do(s <-chan int, d chan<- bool) {
 	for i := range s {
 		println("get sign", i)
 	}
-	d <- true
+	d <- struct{}{}
 }
 
 func command(s chan<- int) {
